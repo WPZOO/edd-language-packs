@@ -10,41 +10,44 @@
  * @since 0.1.0
  */
 function edd_lp_add_translations_license_response( $response, $download ) {
-	if ( $download->post_title === $response['name'] ) {
+	$translations = get_transient( 'language-packs-' . $download->ID );
 
-		$translations = get_transient( 'language-packs-' . $download->ID );
+	if ( $translations ) {
+		$response['translations'] = $translations;
+		return $response;
+	}
 
-		if ( $translations ) {
-			$response['translations'] = $translations;
-			return $response;
+	$languages = get_post_meta( $download->ID, 'edd_lp_languages', true );
+	if ( ! $languages ) {
+		return $response;
+	}
+
+	$translations = array();
+	foreach ( $languages as $key => $language ) {
+		$directory     = get_post_meta( $download->ID, 'edd_lp_directory', true );
+		$package_url   = $directory . $response['slug'] . '-' . $language . '.zip';
+		$last_modified = edd_lp_get_last_modified( $package_url );
+
+		if ( ! $last_modified ) {
+			continue;
 		}
 
-		$languages = get_post_meta( $download->ID, 'edd_lp_languages', true );
-		$translations = array();
+		$translations[] = array(
+			'type'       => get_post_meta( $download->ID, 'edd_lp_type', true ),
+			'slug'       => $response['slug'],
+			'language'   => $language,
+			'version'    => get_post_meta( $download->ID, '_edd_sl_version', true ),
+			'updated'    => $last_modified,
+			'package'    => $package_url,
+			'autoupdate' => 1
+		);
+	}
 
-		foreach ( $languages as $key => $language ) {
-			$directory     = get_post_meta( $download->ID, 'edd_lp_directory', true );
-			$package_url   = $directory . $response['slug'] . '-' . $language . '.zip';
-			$last_modified = edd_lp_get_last_modified( $package_url );
-
-			if ( ! $last_modified ) {
-				continue;
-			}
-			$translations[] = array(
-				'type'       => get_post_meta( $download->ID, '_edd_lp_type', true ),
-				'slug'       => $response['slug'],
-				'language'   => $language,
-				'version'    => get_post_meta( $download->ID, '_edd_sl_version', true ),
-				'updated'    => $last_modified,
-				'package'    => $package_url,
-				'autoupdate' => 1
-			);
-		}
+	if ( ! empty( $translations ) ) {
 		set_transient( 'language-packs-' . $download->ID, $translations, 24 * HOUR_IN_SECONDS );
 	}
 
 	$response['translations'] = $translations;
-	error_log(print_r($response,true));
 	return $response;
 };
 add_filter( 'edd_sl_license_response', 'edd_lp_add_translations_license_response', 10, 2 );
@@ -66,4 +69,3 @@ function edd_lp_get_last_modified( $package_url ) {
 		return false;
 	}
 	return date( 'Y-m-d H:i:s', strtotime( $last_modified ) );
-}
