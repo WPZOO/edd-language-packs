@@ -1,9 +1,9 @@
 {
-	"name"        : "grappler/edd-language-packs",
+	"name"        : "wpzoo/edd-language-packs",
 	"description" : "Support languages pack for the themes and plugins. Checks for a valid license before sharing the download link. Requires EDD & EDD Software Licenses.",
 	"keywords"    : ["wordpress", "language-pack", "easy-digital-downloads"],
 	"type"        : "wordpress-plugin",
-	"homepage"    : "https://github.com/grappler/edd-language-packs",
+	"homepage"    : "https://github.com/wpzoo/edd-language-packs",
 	"license"     : "GPL2",
 	"authors"     : [
 		{
@@ -13,7 +13,7 @@
 		}
 	],
 	"support"     : {
-		"issues": "https://github.com/grappler/language-packs/issues"
+		"issues": "https://github.com/wpzoo/edd-language-packs/issues"
 	},
 	"require" : {
 		"php"                                      : ">=5.3",
