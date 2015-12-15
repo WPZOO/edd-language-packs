@@ -22,25 +22,48 @@ For example the slug for this plugin is edd-language-packs and I have a German(S
 ## Updater Classs
 
 ### Theme
-For the theme update code you need to extend the function `theme_update_transient()` in `theme-updater-class.php` with:
+
+For the theme update code you need to extend the function `theme_update_transient()` in `theme-updater-class.php` line 91 with:
 ```php
-if ( array_key_exists( 'translations', $update_data ) ) {
-	foreach ( $value->translations as $key => $value) {
-		$update_data['translations'][] = $value;
-	}
-	$value->translations = (object) $update_data['translations'];
-}
+edd_lp_merge_translations( $value, $update_data );
 ```
 
-For the plugin update code you need to extend the function `check_update()` in `EDD_SL_Plugin_Updater.php` with:
+### Plugin
+
+For the plugin update code you need to extend the function `check_update()` in `EDD_SL_Plugin_Updater.php` line 97  with:
 ```php
-if ( isset( $version_info->translations ) ) {
-		if ( isset( $_transient_data->translations ) ) {
-		foreach ( $_transient_data->translations as $key => $value) {
-			$version_info->translations[] = $value;
-		}
+edd_lp_merge_translations( $_transient_data, $version_info );
+```
+
+This function works for both the theme and plugin updater
+```php
+/**
+ * Update the response with own language packs.
+ *
+ * @param array $response    Update info on all plugins.
+ * @param array $update_data Update for own plugins.
+ *
+ * @return array             Update info on all plugins.
+ *
+ * @since 0.1.0
+ */
+function edd_lp_merge_translations( $response, $update_data ) {
+	$update_data = json_decode( json_encode( $update_data ), true );
+	// If no there no translations return early.
+	if ( empty( $update_data['translations'] ) ) {
+		return $response;
 	}
-	$_transient_data->translations = $version_info->translations;
+
+	if ( property_exists( $response, 'translations' ) ) {
+		$response->translations = array_merge(
+			$response->translations,
+			$update_data['translations']
+		);
+	} else {
+		$response->translations = $update_data['translations'];
+	}
+
+	return $response;
 }
 ```
 
