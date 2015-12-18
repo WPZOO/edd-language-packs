@@ -69,3 +69,4 @@ function edd_lp_get_last_modified( $package_url ) {
 		return false;
 	}
 	return date( 'Y-m-d H:i:s', strtotime( $last_modified ) );
+}
