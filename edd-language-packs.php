@@ -33,7 +33,7 @@ if ( class_exists( 'EDD_License' ) ) {
 		'0.1.0',
 		'WPZOO',
 		'edd_language_packs_license_key',
-		'http://local.wp.zoo'
+		'http://wpzoo.ch'
 	);
 }
 
